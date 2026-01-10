@@ -80,28 +80,28 @@ pipeline {
         stage('Send Email') {
             steps {
                 script {
-            // 统计 allure-results 目录下的 JSON 文件
-                sh '''
-                # 统计测试总数
-                testCount=$(find allure-results -name "*.json" | wc -l)
-                # 统计通过的测试
-                passedCount=$(grep -r '"status":"passed"' allure-results/*.json | wc -l)
-                # 统计失败的测试
-                failedCount=$(grep -r '"status":"failed"' allure-results/*.json | wc -l)
+                    // 构建结果
+                    def buildResult = currentBuild.result ?: 'SUCCESS'
+                    def allureUrl = "${env.BUILD_URL}allure/"
 
-                echo "TEST_TOTAL=$testCount" > test_stats.env
-                echo "TEST_PASSED=$passedCount" >> test_stats.env
-                echo "TEST_FAILED=$failedCount" >> test_stats.env
-            '''
+                    // 读取测试结果统计
+                    def stats = readProperties file: 'test_stats.env'
+                    def testCount = stats.TEST_TOTAL
+                    def passedCount = stats.TEST_PASSED
+                    def failedCount = stats.TEST_FAILED
 
-            // 读取统计结果
-            def stats = readProperties file: 'test_stats.env'
-            def testCount = stats.TEST_TOTAL
-            def passedCount = stats.TEST_PASSED
-            def failedCount = stats.TEST_FAILED
-        }
-    }
-}
+                    try {
+                        sh '''
+                        # 统计测试结果
+                        if [ -d "allure-results" ]; then
+                            echo "统计测试结果..."
+                            # 这里可以添加统计逻辑
+                        fi
+                        '''
+                    } catch (Exception e) {
+                        echo "统计测试结果失败: ${e}"
+                    }
+
                     mail to: '625875899@qq.com',
                          subject: "Jenkins构建结果: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${buildResult}",
                          body: """
@@ -124,6 +124,7 @@ pipeline {
                          """
                 }
             }
+        }
     }
 
     post {
