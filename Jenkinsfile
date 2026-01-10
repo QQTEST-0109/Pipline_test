@@ -84,11 +84,11 @@ pipeline {
                     def buildResult = currentBuild.result ?: 'SUCCESS'
                     def allureUrl = "${env.BUILD_URL}allure/"
 
-                    // 读取测试结果统计
-                     //def stats = readProperties file: 'test_stats.env'
-                    def testCount = stats.TEST_TOTAL
-                    def passedCount = stats.TEST_PASSED
-                    def failedCount = stats.TEST_FAILED
+            // 使用 Allure 生成的统计文件
+            def allureSummary = readJSON file: 'allure-report/widgets/summary.json'
+            def testCount = allureSummary.statistic.total
+            def passedCount = allureSummary.statistic.passed
+            def failedCount = allureSummary.statistic.failed
 
                     try {
                         sh '''
