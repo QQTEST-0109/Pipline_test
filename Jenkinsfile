@@ -85,7 +85,7 @@ pipeline {
                     def allureUrl = "${env.BUILD_URL}allure/"
 
                     // 读取测试结果统计
-                    def stats = readProperties file: 'test_stats.env'
+                     //def stats = readProperties file: 'test_stats.env'
                     def testCount = stats.TEST_TOTAL
                     def passedCount = stats.TEST_PASSED
                     def failedCount = stats.TEST_FAILED
